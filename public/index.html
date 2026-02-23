@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+
+</head>
+<body>
+
+<h2 id="titulo"></h2>
+<div id="contenido"></div>
+
+<script>
+  const exam = "<?= exam ?>";
+  const student = "<?= student ?>";
+  document.getElementById("titulo").innerText = "Examen: " + exam;
+  google.script.run.withSuccessHandler(renderizar).obtenerExamen(exam);
+
+  function renderizar(data){
+
+    const contenedor = document.getElementById("contenido");
+    contenedor.innerHTML = "";
+    data.forEach(item => {
+    const bloque = document.createElement("div");
+    bloque.style.marginBottom = "30px";
+    const titulo = document.createElement("h3");
+    titulo.innerText = item.seccion;
+    bloque.appendChild(titulo);
+
+      if (item.tipo === "Listening") {
+        const repr = document.createElement("div");
+        bloque.appendChild(repr);
+        const iframe = document.createElement("iframe");
+        const link=item.audio;
+        const id = link.match(/[-\w]{25,}/)[0]; 
+        iframe.src = "https://drive.google.com/file/d/"+id+"/preview";
+        iframe.width = "350";
+        iframe.height = "70";
+        iframe.allow = "autoplay";
+        iframe.style.border = "none";
+        repr.appendChild(iframe);}
+
+      else if(item.tipo === "Speaking"){
+        const abtn = document.createElement("button");
+
+        abtn.innerText = "Grabar respuesta";
+
+        abtn.onclick = () => iniciarGrabacion(item.seccion,bloque);
+        bloque.appendChild(abtn);
+
+        }
+      let mediaRecorder;
+      let chunks = [];
+      let timerInterval;
+      let seconds = 0;
+async function iniciarGrabacion(seccion,bloque){
+
+
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  mediaRecorder = new MediaRecorder(stream);
+  let audioChunks = [];
+
+  mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+  mediaRecorder.onstop = () => {
+  clearInterval(timerInterval);
+  timerDisplay.textContent = "00:00";
+    const blob = new Blob(audioChunks, { type: 'audio/mp3' });
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onloadend = function() {
+      const base64 = reader.result.split(',')[1];};
+
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const date = day + "/" + month +"/"+year;
+
+      const nombre = exam + "_" + student + "_" + date;
+
+      google.script.run.guardarGrabacion(base64, nombre, exam, seccion);
+      alert("Grabación enviada");
+
+  };
+  mediaRecorder.start();
+  const timerDisplay = document.createElement("p");
+timerDisplay.innerText = "00:00";
+bloque.appendChild(timerDisplay);
+timerInterval = setInterval(() => {
+  seconds++;
+  const min = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const sec = String(seconds % 60).padStart(2, "0");
+  timerDisplay.textContent = `${min}:${sec}`;
+}, 1000);
+const bbtn = document.createElement("button");
+bbtn.innerText = "Terminar grabación";
+  bbtn.onclick = () => {
+    mediaRecorder.stop();
+  };
+bloque.appendChild(bbtn);
+}
+      contenedor.appendChild(bloque);
+
+
+      });}
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <title>Login</title>
+    <style>
+      body{
+      margin:0;
+      background:lightgray;
+
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+      }
+      #contenido{
+      flex:1;                 /* ocupa el espacio disponible */
+      display:flex;
+      justify-content:center; /* centra horizontal */
+      align-items:center;     /* centra vertical */
+      flex-direction:column;
+      text-align:center;
+      gap:10px;
+      }
+
+      #head{
+        border-style: solid;
+        border-width: thin;
+        border-top-color:transparent;border-right-color:transparent;
+        border-left-color:transparent;
+        border-bottom-color: black;
+        top:0px;
+        background: lightblue;
+        height:60px;
+      }
+      #head h2 {margin-top: 0;
+      padding-top:25px;
+      padding-left:10px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="head">
+      <h2>Infinity Learning Experience.</h2>
+    </div>
+
+  <div id="contenido">
+    <h2 id="t1">Registrese para acceder al recurso.</h2>
+    <input type="text" id="user" placeholder="Nombre y Apellido.">
+    <button id="btn"  >Continuar</button>
+
+    <p id="er"></p>
+      <script>
+        const exam = "<?= exam ?>";
+        const bt=document.getElementById("btn");
+
+          bt.onclick = () => {
+          var name = document.getElementById("user").value;
+
+            if (name){
+             const base = window.location.href.split("?")[0];
+
+              google.script.run.withSuccessHandler(function(url){window.top.location.href = url;}).redirigir(exam, name);
+            }
+            else{
+               const error = document.createElement("p");
+                error.innerText = "Ingrese su nombre y apellido.";
+                er.appendChild(error);
+            }
+            };
+
+
+      </script>
+
+
+  </div>
+  </body>
+</html>
